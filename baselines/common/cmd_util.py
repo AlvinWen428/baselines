@@ -84,7 +84,10 @@ def make_env(env_id, env_type, mpi_rank=0, subrank=0, seed=None, reward_scale=1.
         env = gym.make(env_id, **env_kwargs)
 
     if flatten_dict_observations and isinstance(env.observation_space, gym.spaces.Dict):
-        env = FlattenObservation(env)
+        if env_type == 'robotics':
+            env = FlattenObservation(FilterObservation(env, ['observation', 'desired_goal']))
+        else:
+            env = FlattenObservation(env)
 
     env.seed(seed + subrank if seed is not None else None)
     env = Monitor(env,
